@@ -5,7 +5,7 @@ This script is written by python language and very simple with single file.
 
 Prerequisites
 1. Python 2
-2. Linux (Devian, Redhat)
+2. Linux (Debian, Redhat)
 3. Working linux commands of ps and iostat
 
 Feautures
