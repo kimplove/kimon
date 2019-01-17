@@ -13,5 +13,4 @@ Feautures
 2. Reported CPU, Memory, Read/Write speed etc.. (ps -ax, iostat, iostat -x)
 3. In case of multiple processes you want, reported sum values of CPU and Memory (ps -ax)
 
-Usage
-kimon-0.1.py [-h] [--period PERIOD] [--user USER] [--disk DISK] [--file FILE] [--output OUTPUT]
+Usage: kimon-0.1.py [-h] [--period PERIOD] [--user USER] [--disk DISK] [--file FILE] [--output OUTPUT]
