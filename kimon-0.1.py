@@ -134,6 +134,7 @@ if __name__=='__main__':
             print >> rfh, '\t'.join(printline)
             time.sleep( PERIOD )
 
+        time.sleep(2)
         os.system( "killall -u "+USER+" iostat" )
         
         rfh.close()
