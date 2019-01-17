@@ -1,7 +1,7 @@
 # kimon
 A Process Monitoring Script using ps and iostat
 
-This script is written by python language and very simple with single file. 
+This script is written by python language and very simple. 
 
 Prerequisites
 1. Python 2
