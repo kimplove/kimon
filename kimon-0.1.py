@@ -10,6 +10,7 @@ USER = 'wykim'
 DEV = 'sdb'
 keyFile = 'kimon_process.conf'
 output = 'kimon-out'
+MemoryClean = '0' #1,2,3
 
 import os,re,glob,time,argparse,sys
 
@@ -18,7 +19,7 @@ dic_keyValue = {}
 
 # parameter
 def arguments():
-    global PERIOD, USER, DEV, keyFile, output
+    global PERIOD, USER, DEV, keyFile, output, MemoryClean
     parser = argparse.ArgumentParser()
     parser.add_argument( "--period", "-p", type=int, default=PERIOD, \
             help="monitoring interval seconds" )
@@ -29,7 +30,9 @@ def arguments():
     parser.add_argument( "--file", "-f", type=str, default=keyFile, \
             help="including process names (multi-lines) with key and value tab-deliminated format \
             (eg. Name<tab>ProcessNameToGrep)" )
-    parser.add_argument( "--output", "-o", type=str, \
+    parser.add_argument( "--memoryClean", "-m", type=str, default=MemoryClean, \
+            help="Pagecache 1, Pagecache&Inodes 2, Pagecache&Inodes&Dentries 3" )
+    parser.add_argument( "--output", "-o", type=str, default=output, \
             help="prefix of output file name" )
     args = parser.parse_args()
 #    if not args.user: sys.stderr.write( "User parameter is required\n" )
@@ -41,6 +44,12 @@ def arguments():
     if args.disk: DEV = args.disk
     if args.file: keyFile = args.file
     if args.output: output = args.output
+    if args.memoryClean: MemoryClean = args.memoryClean
+
+def clearMemory():
+    global MemoryClean
+    if MemoryClean == '1' or MemoryClean == '2' or MemoryClean == '3':
+        os.system( "sudo /bin/bash -c 'echo "+MemoryClean+" > /proc/sys/vm/drop_caches'; sync" )
 
 # get process name from a file which includes process names with tab-deliminated format
 def getProcessName():
@@ -102,6 +111,10 @@ def iostatx():
     rfh.close()
     os.system( "iostat -d /dev/"+DEV+" -xy "+str(PERIOD)+" | grep "+DEV+" >> "+io2name )
 
+def blktrace():
+    os.system( 'mkdir -p '+ output + ".blktrace" )
+    os.system( 'sudo blktrace /dev/'+DEV+" -a complete -D "+output+".blktrace" )
+
 # main
 if __name__=='__main__':
 
@@ -113,12 +126,20 @@ if __name__=='__main__':
 
         #grandchild process
         if pid == 0:
-            iostat()
+            pid = os.fork()
+
+            if pid == 0:
+                blktrace()
+            else:
+                iostat()
+
         else:
             iostatx()
     
     else:
         arguments()
+
+        clearMemory()
         getProcessName()
 
         outname = output + '.ps'
@@ -134,8 +155,10 @@ if __name__=='__main__':
             print >> rfh, '\t'.join(printline)
             time.sleep( PERIOD )
 
-        time.sleep(2)
+        time.sleep(4)
         os.system( "killall -u "+USER+" iostat" )
+        
+        os.system( "sudo killall blktrace" )
         
         rfh.close()
 

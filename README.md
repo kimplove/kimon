@@ -7,6 +7,7 @@ Prerequisites
 1. Python 2
 2. Linux (Debian, Redhat)
 3. Working linux commands of ps and iostat
+4. Enalbed running with nopasswd sudo
 
 Feautures
 1. Monitoring specific processes that you want.
